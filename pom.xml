@@ -52,13 +52,13 @@
       <id>silverpeas</id>
       <name>Repository Silverpeas</name>
       <layout>default</layout>
-      <url>http://www.silverpeas.org/nexus/content/repositories/releases/</url>
+      <url>https://www.silverpeas.org/nexus/content/repositories/releases/</url>
     </repository>
     <snapshotRepository>
       <id>silverpeas-snapshots</id>
       <name>Snapshots Repository Silverpeas</name>
       <layout>default</layout>
-      <url>http://www.silverpeas.org/nexus/content/repositories/snapshots/</url>
+      <url>https://www.silverpeas.org/nexus/content/repositories/snapshots/</url>
     </snapshotRepository>
     <site>
       <id>silverpeas_repository</id>
@@ -69,7 +69,7 @@
   <scm>
     <connection>scm:git:git@github.com:Silverpeas/Silverpeas-Spnego.git</connection>
     <developerConnection>scm:git:git@github.com:Silverpeas/Silverpeas-Spnego.git</developerConnection>
-    <url>http://gitub.com/Silverpeas/Silverpeas-Spnego.git</url>
+    <url>https://gitub.com/Silverpeas/Silverpeas-Spnego.git</url>
     <tag>HEAD</tag>
   </scm>
 
