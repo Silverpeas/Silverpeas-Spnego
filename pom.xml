@@ -82,7 +82,7 @@
         <role>Developer</role>
       </roles>
       <organization>Silverpeas</organization>
-      <organizationUrl>http://www.silverpeas.com</organizationUrl>
+      <organizationUrl>https://www.silverpeas.com</organizationUrl>
       <email>miguel.moquillon@silverpeas.org</email>
     </developer>
     <developer>
@@ -92,7 +92,7 @@
         <role>Developer</role>
       </roles>
       <organization>Silverpeas.com</organization>
-      <organizationUrl>http://www.silverpeas.com</organizationUrl>
+      <organizationUrl>https://www.silverpeas.com</organizationUrl>
       <email>yohann.chastagnier@silverpeas.org</email>
     </developer>
   </developers>
