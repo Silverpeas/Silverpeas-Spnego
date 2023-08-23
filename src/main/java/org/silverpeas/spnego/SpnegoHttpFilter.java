@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2014 Silverpeas
+/*
+ * Copyright (C) 2014-2023 Silverpeas
  * Copyright (C) 2009 "Darwin V. Felix" <darwinfelix@users.sourceforge.net>
  * 
  * This library is free software; you can redistribute it and/or
@@ -22,14 +22,14 @@ package org.silverpeas.spnego;
 import org.ietf.jgss.GSSException;
 
 import javax.security.auth.login.LoginException;
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -195,16 +195,9 @@ public final class SpnegoHttpFilter implements Filter {
 
       // pre-authenticate
       this.authenticator = new SpnegoAuthenticator(config);
-    } catch (final LoginException le) {
+    } catch (final LoginException | URISyntaxException | FileNotFoundException |
+                   PrivilegedActionException | GSSException le) {
       throw new ServletException(le);
-    } catch (final GSSException gsse) {
-      throw new ServletException(gsse);
-    } catch (final PrivilegedActionException pae) {
-      throw new ServletException(pae);
-    } catch (final FileNotFoundException fnfe) {
-      throw new ServletException(fnfe);
-    } catch (final URISyntaxException uri) {
-      throw new ServletException(uri);
     }
   }
 
@@ -328,6 +321,7 @@ public final class SpnegoHttpFilter implements Filter {
      * <p>This feature helps to obviate the requirement of
      * creating an SPN for developer machines.</p>
      */
+    @SuppressWarnings("JavadocLinkAsPlainText")
     public static final String ALLOW_LOCALHOST = "spnego.allow.localhost";
 
     /**

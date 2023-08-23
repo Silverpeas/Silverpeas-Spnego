@@ -1,4 +1,5 @@
-/** 
+/*
+ * Copyright (C) 2014-2023 Silverpeas
  * Copyright (C) 2009 "Darwin V. Felix" <darwinfelix@users.sourceforge.net>
  * 
  * This library is free software; you can redistribute it and/or
@@ -20,7 +21,7 @@ package org.silverpeas.spnego;
 
 import org.ietf.jgss.GSSCredential;
 
-import javax.servlet.ServletRequest;
+import jakarta.servlet.ServletRequest;
 
 /**
  * The default installation of Internet Explorer and Active Directory
@@ -82,5 +83,6 @@ public interface DelegateServletRequest extends ServletRequest {
    * </p>
    * @return delegated credential or null
    */
+  @SuppressWarnings("unused")
   GSSCredential getDelegatedCredential();
 }
