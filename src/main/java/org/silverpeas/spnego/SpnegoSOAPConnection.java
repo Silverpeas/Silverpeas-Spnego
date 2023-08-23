@@ -1,4 +1,5 @@
-/** 
+/*
+ * Copyright (C) 2014-2023 Silverpeas
  * Copyright (C) 2009 "Darwin V. Felix" <darwinfelix@users.sourceforge.net>
  * 
  * This library is free software; you can redistribute it and/or
@@ -18,19 +19,13 @@
 
 package org.silverpeas.spnego;
 
+import jakarta.xml.soap.*;
 import org.ietf.jgss.GSSCredential;
 import org.ietf.jgss.GSSException;
 
 import javax.security.auth.login.LoginException;
-import javax.xml.soap.MessageFactory;
-import javax.xml.soap.MimeHeaders;
-import javax.xml.soap.SOAPConnection;
-import javax.xml.soap.SOAPConstants;
-import javax.xml.soap.SOAPException;
-import javax.xml.soap.SOAPMessage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.PrivilegedActionException;
 
@@ -106,9 +101,9 @@ public class SpnegoSOAPConnection extends SOAPConnection {
   /**
    * Creates an instance where the LoginContext relies on a keytab
    * file being specified by "java.security.auth.login.config" or
-   * where LoginContext relies on tgtsessionkey.
-   * @param loginModuleName
-   * @throws javax.security.auth.login.LoginException
+   * where LoginContext relies on the session key.
+   * @param loginModuleName the name of the login module
+   * @throws LoginException if the login context cannot be got.
    */
   @SuppressWarnings("UnusedDeclaration")
   public SpnegoSOAPConnection(final String loginModuleName) throws LoginException {
@@ -142,10 +137,10 @@ public class SpnegoSOAPConnection extends SOAPConnection {
    * Creates an instance where the LoginContext does not require a keytab
    * file. However, the "java.security.auth.login.config" property must still
    * be set prior to instantiating this object.
-   * @param loginModuleName
-   * @param username
-   * @param password
-   * @throws javax.security.auth.login.LoginException
+   * @param loginModuleName the name of the login module
+   * @param username the user login
+   * @param password the user password
+   * @throws LoginException if the login context cannot be got.
    */
   @SuppressWarnings("UnusedDeclaration")
   public SpnegoSOAPConnection(final String loginModuleName, final String username,
@@ -159,7 +154,7 @@ public class SpnegoSOAPConnection extends SOAPConnection {
   public final SOAPMessage call(final SOAPMessage request, final Object endpoint)
       throws SOAPException {
 
-    SOAPMessage message = null;
+    SOAPMessage message;
     final ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
     try {
@@ -208,13 +203,7 @@ public class SpnegoSOAPConnection extends SOAPConnection {
         message = factory.createMessage(null, this.conn.getErrorStream());
       }
 
-    } catch (MalformedURLException e) {
-      throw new SOAPException(e);
-    } catch (IOException e) {
-      throw new SOAPException(e);
-    } catch (GSSException e) {
-      throw new SOAPException(e);
-    } catch (PrivilegedActionException e) {
+    } catch (PrivilegedActionException | GSSException | IOException e) {
       throw new SOAPException(e);
     } finally {
       try {

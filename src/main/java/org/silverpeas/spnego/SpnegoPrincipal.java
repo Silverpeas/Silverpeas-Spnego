@@ -1,4 +1,5 @@
-/** 
+/*
+ * Copyright (C) 2014-2023 Silverpeas
  * Copyright (C) 2009 "Darwin V. Felix" <darwinfelix@users.sourceforge.net>
  * 
  * This library is free software; you can redistribute it and/or
@@ -45,6 +46,7 @@ public final class SpnegoPrincipal implements Principal {
    * Constructs a SpnegoPrincipal from the provided String input.
    * @param name the principal name
    */
+  @SuppressWarnings("unused")
   public SpnegoPrincipal(final String name) {
     this.kerberosPrincipal = new KerberosPrincipal(name);
     this.delegatedCred = null;
@@ -91,6 +93,7 @@ public final class SpnegoPrincipal implements Principal {
    * Returns the name type of the KerberosPrincipal.
    * @return name type of the KerberosPrincipal
    */
+  @SuppressWarnings("unused")
   public int getNameType() {
     return this.kerberosPrincipal.getNameType();
   }
@@ -99,6 +102,7 @@ public final class SpnegoPrincipal implements Principal {
    * Returns the realm component of this Kerberos principal.
    * @return realm component of this Kerberos principal
    */
+  @SuppressWarnings("unused")
   public String getRealm() {
     return this.kerberosPrincipal.getRealm();
   }
