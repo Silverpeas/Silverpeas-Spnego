@@ -1,16 +1,17 @@
-/** 
+/*
+ * Copyright (C) 2014-2023 Silverpeas
  * Copyright (C) 2009 "Darwin V. Felix" <darwinfelix@users.sourceforge.net>
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
@@ -18,21 +19,15 @@
 
 package org.silverpeas.spnego;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.ietf.jgss.*;
 import org.silverpeas.spnego.SpnegoHttpFilter.Constants;
-import org.ietf.jgss.GSSContext;
-import org.ietf.jgss.GSSCredential;
-import org.ietf.jgss.GSSException;
-import org.ietf.jgss.GSSManager;
-import org.ietf.jgss.GSSName;
-import org.ietf.jgss.Oid;
 
 import javax.security.auth.Subject;
-import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URL;
 import java.security.PrivilegedActionException;
@@ -41,23 +36,22 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * This is a Utility Class that can be used for finer grained control
- * over message integrity, confidentiality and mutual authentication.
+ * This is a Utility Class that can be used for finer grained control over message integrity,
+ * confidentiality and mutual authentication.
  * <p/>
  * <p>
- * This Class is exposed for developers who want to implement a custom
- * HTTP client.
+ * This Class is exposed for developers who want to implement a custom HTTP client.
  * </p>
  * <p/>
  * <p>
- * Take a look at the {@link SpnegoHttpURLConnection} class and the
- * {@link SpnegoHttpFilter} class before attempting to implement your
- * own HTTP client.
+ * Take a look at the {@link SpnegoHttpURLConnection} class and the {@link SpnegoHttpFilter} class
+ * before attempting to implement your own HTTP client.
  * </p>
  * <p/>
  * <p>For more example usage, see the documentation at
  * <a href="http://spnego.sourceforge.net" target="_blank">http://spnego.sourceforge.net</a>
  * </p>
+ *
  * @author Darwin V. Felix
  */
 public final class SpnegoProvider {
@@ -85,24 +79,22 @@ public final class SpnegoProvider {
   }
 
   /**
-   * Returns the {@link SpnegoAuthScheme} mechanism used to authenticate
-   * the request.
+   * Returns the {@link SpnegoAuthScheme} mechanism used to authenticate the request.
    * <p/>
    * <p>
-   * This method may return null in which case you must check the HTTP
-   * Status Code to determine if additional processing is required.
-   * <br />
-   * For example, if req. did not contain the SpnegoConstants.AUTHZ_HEADER,
-   * the HTTP Status Code SC_UNAUTHORIZED will be set and the client must
-   * send authentication information on the next request.
+   * This method may return null in which case you must check the HTTP Status Code to determine if
+   * additional processing is required. <br /> For example, if req. did not contain the
+   * SpnegoConstants.AUTHZ_HEADER, the HTTP Status Code SC_UNAUTHORIZED will be set and the client
+   * must send authentication information on the next request.
    * </p>
+   *
    * @param req servlet request
    * @param resp servlet response
    * @param basicSupported pass true to offer/allow BASIC Authentication
    * @param promptIfNtlm pass true ntlm request should be downgraded
    * @param realm should be the realm the server used to pre-authenticate
    * @return null if negotiation needs to continue or failed
-   * @throws java.io.IOException
+   * @throws IOException if an IO error occurs during the negotiation
    */
   static SpnegoAuthScheme negotiate(final HttpServletRequest req,
       final SpnegoHttpServletResponse resp, final boolean basicSupported,
@@ -154,41 +146,39 @@ public final class SpnegoProvider {
   }
 
   /**
-   * Returns the GSS-API interface for creating a security context.
+   * Gets from the specified subject the specific GSS-API user credentials used to authenticate and
+   * identified the user behind the subject.
+   *
    * @param subject the person to be authenticated
    * @return GSSCredential to be used for creating a security context.
-   * @throws java.security.PrivilegedActionException
+   * @throws PrivilegedActionException if the creation of the GSS-API client credentials isn't
+   * allowed.
    */
   public static GSSCredential getClientCredential(final Subject subject)
       throws PrivilegedActionException {
 
     final PrivilegedExceptionAction<GSSCredential> action =
-        new PrivilegedExceptionAction<GSSCredential>() {
-          public GSSCredential run() throws GSSException {
-            return MANAGER
-                .createCredential(null, GSSCredential.DEFAULT_LIFETIME, SpnegoProvider.SPNEGO_OID,
-                    GSSCredential.INITIATE_ONLY);
-          }
-        };
+        () -> MANAGER
+            .createCredential(null, GSSCredential.DEFAULT_LIFETIME, SpnegoProvider.SPNEGO_OID,
+                GSSCredential.INITIATE_ONLY);
 
     return Subject.doAs(subject, action);
   }
 
   /**
-   * Returns a GSSContext to be used by custom clients to set
-   * data integrity requirements, confidentiality and if mutual
-   * authentication is required.
-   * @param creds credentials of the person to be authenticated
+   * Gets a GSSContext to be used by custom clients to set data integrity requirements,
+   * confidentiality and if mutual authentication is required.
+   *
+   * @param credentials credentials of the person to be authenticated
    * @param url HTTP address of server (used for constructing a {@link org.ietf.jgss.GSSName}).
    * @return GSSContext
-   * @throws org.ietf.jgss.GSSException
-   * @throws java.security.PrivilegedActionException
+   * @throws GSSException if a GSS-API error occurs
    */
-  public static GSSContext getGSSContext(final GSSCredential creds, final URL url)
+  public static GSSContext getGSSContext(final GSSCredential credentials, final URL url)
       throws GSSException {
 
     return MANAGER
-        .createContext(SpnegoProvider.getServerName(url), SpnegoProvider.SPNEGO_OID, creds,
+        .createContext(SpnegoProvider.getServerName(url), SpnegoProvider.SPNEGO_OID, credentials,
             GSSContext.DEFAULT_LIFETIME);
   }
 
@@ -196,13 +186,13 @@ public final class SpnegoProvider {
    * Returns the {@link SpnegoAuthScheme} or null if header is missing.
    * <p/>
    * <p>
-   * Throws UnsupportedOperationException if header is NOT Negotiate
-   * or Basic.
+   * Throws UnsupportedOperationException if header is NOT Negotiate or Basic.
    * </p>
+   *
    * @param header ex. Negotiate or Basic
    * @return null if header missing/null else the auth scheme
    */
-  public static SpnegoAuthScheme getAuthScheme(final String header) {
+  static SpnegoAuthScheme getAuthScheme(final String header) {
 
     if (null == header || header.isEmpty()) {
       LOGGER.finer("authorization header was missing/null");
@@ -222,8 +212,8 @@ public final class SpnegoProvider {
   }
 
   /**
-   * Returns the Universal Object Identifier representation of
-   * the SPNEGO mechanism.
+   * Returns the Universal Object Identifier representation of the SPNEGO mechanism.
+   *
    * @return Object Identifier of the GSS-API mechanism
    */
   private static Oid getOid() {
@@ -238,28 +228,25 @@ public final class SpnegoProvider {
 
   /**
    * Returns the {@link org.ietf.jgss.GSSCredential} the server uses for pre-authentication.
+   *
    * @param subject account server uses for pre-authentication
    * @return credential that allows server to authenticate clients
-   * @throws java.security.PrivilegedActionException
+   * @throws PrivilegedActionException if the getting of the credentials is not allowed.
    */
   static GSSCredential getServerCredential(final Subject subject) throws PrivilegedActionException {
 
     final PrivilegedExceptionAction<GSSCredential> action =
-        new PrivilegedExceptionAction<GSSCredential>() {
-          public GSSCredential run() throws GSSException {
-            return MANAGER.createCredential(null, GSSCredential.INDEFINITE_LIFETIME,
-                SpnegoProvider.SPNEGO_OID, GSSCredential.ACCEPT_ONLY);
-          }
-        };
+        () -> MANAGER.createCredential(null, GSSCredential.INDEFINITE_LIFETIME,
+            SpnegoProvider.SPNEGO_OID, GSSCredential.ACCEPT_ONLY);
     return Subject.doAs(subject, action);
   }
 
   /**
-   * Returns the {@link org.ietf.jgss.GSSName} constructed out of the passed-in
-   * URL object.
+   * Returns the {@link org.ietf.jgss.GSSName} constructed out of the passed-in URL object.
+   *
    * @param url HTTP address of server
    * @return GSSName of URL.
-   * @throws org.ietf.jgss.GSSException
+   * @throws GSSException if a GSS-API error occurs
    */
   static GSSName getServerName(final URL url) throws GSSException {
     return MANAGER.createName("HTTP@" + url.getHost(), GSSName.NT_HOSTBASED_SERVICE,
@@ -267,8 +254,9 @@ public final class SpnegoProvider {
   }
 
   /**
-   * Used by the BASIC Auth mechanism for establishing a LoginContext
-   * to authenticate a client/caller/request.
+   * Used by the BASIC Auth mechanism for establishing a LoginContext to authenticate a
+   * client/caller/request.
+   *
    * @param username client username
    * @param password client password
    * @return CallbackHandler to be used for establishing a LoginContext
@@ -278,23 +266,19 @@ public final class SpnegoProvider {
 
     LOGGER.fine("username=" + username + "; password=" + password.hashCode());
 
-    final CallbackHandler handler = new CallbackHandler() {
-      public void handle(final Callback[] callback) {
-        for (int i = 0; i < callback.length; i++) {
-          if (callback[i] instanceof NameCallback) {
-            final NameCallback nameCallback = (NameCallback) callback[i];
-            nameCallback.setName(username);
-          } else if (callback[i] instanceof PasswordCallback) {
-            final PasswordCallback passCallback = (PasswordCallback) callback[i];
-            passCallback.setPassword(password.toCharArray());
-          } else {
-            LOGGER.warning(
-                "Unsupported Callback i=" + i + "; class=" + callback[i].getClass().getName());
-          }
+    return callback -> {
+      for (int i = 0; i < callback.length; i++) {
+        if (callback[i] instanceof NameCallback) {
+          final NameCallback nameCallback = (NameCallback) callback[i];
+          nameCallback.setName(username);
+        } else if (callback[i] instanceof PasswordCallback) {
+          final PasswordCallback passCallback = (PasswordCallback) callback[i];
+          passCallback.setPassword(password.toCharArray());
+        } else {
+          LOGGER.warning(
+              "Unsupported Callback i=" + i + "; class=" + callback[i].getClass().getName());
         }
       }
     };
-
-    return handler;
   }
 }

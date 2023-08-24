@@ -1,4 +1,5 @@
-/** 
+/*
+ * Copyright (C) 2014-2023 Silverpeas
  * Copyright (C) 2009 "Darwin V. Felix" <darwinfelix@users.sourceforge.net>
  * 
  * This library is free software; you can redistribute it and/or
@@ -18,8 +19,8 @@
 
 package org.silverpeas.spnego;
 
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpServletResponseWrapper;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponseWrapper;
 import java.io.IOException;
 
 /**
@@ -38,7 +39,8 @@ public final class SpnegoHttpServletResponse extends HttpServletResponseWrapper 
   private transient boolean statusSet = false;
 
   /**
-   * @param response
+   * Wraps the specified HTTP response.
+   * @param response the response to decorate.
    */
   public SpnegoHttpServletResponse(final HttpServletResponse response) {
     super(response);
@@ -63,7 +65,7 @@ public final class SpnegoHttpServletResponse extends HttpServletResponseWrapper 
    * length to zero and flush the buffer.
    * @param status http status code
    * @param immediate set to true to set content len to zero and flush
-   * @throws java.io.IOException
+   * @throws IOException if an IO error occurs while setting the HTTP response status.
    * @see #setStatus(int)
    */
   public void setStatus(final int status, final boolean immediate) throws IOException {

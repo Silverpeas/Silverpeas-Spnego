@@ -1,17 +1,17 @@
-/**
- * Copyright (C) 2014 Silverpeas
+/*
+ * Copyright (C) 2014-2023 Silverpeas
  * Copyright (C) 2009 "Darwin V. Felix" <darwinfelix@users.sourceforge.net>
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
@@ -28,14 +28,17 @@ import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.kerberos.KerberosPrincipal;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.PrivilegedActionException;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Map;
@@ -46,8 +49,7 @@ import java.util.logging.Logger;
 
 /**
  * Handles <a href="http://en.wikipedia.org/wiki/SPNEGO">SPNEGO</a> or <a
- * href="http://en.wikipedia.org/wiki/Basic_access_authentication">Basic</a>
- * authentication.
+ * href="http://en.wikipedia.org/wiki/Basic_access_authentication">Basic</a> authentication.
  * <p/>
  * <p>
  * <strike>Package scope is deliberate; this Class MUST NOT be used/referenced directly
@@ -55,37 +57,35 @@ import java.util.logging.Logger;
  * </p>
  * <p/>
  * <p>
- * Basic Authentication must be enabled through the filter configuration. See
- * an example web.xml configuration in the <a href="http://spnego.sourceforge.net/spnego_tomcat
- * .html"
- * target="_blank">installing on tomcat</a> documentation or the
- * {@link SpnegoHttpFilter} javadoc.
+ * Basic Authentication must be enabled through the filter configuration. See an example web.xml
+ * configuration in the <a href="http://spnego.sourceforge.net/spnego_tomcat .html"
+ * target="_blank">installing on tomcat</a> documentation or the {@link SpnegoHttpFilter} javadoc.
  * </p>
  * <p/>
  * <p>
- * Localhost is supported but must be enabled through the filter configuration. Allowing
- * requests to come from the DNS http://localhost will obviate the requirement that a
- * service must have an SPN. <b>Note that Kerberos authentication (if localhost) does
- * not occur but instead simply returns the <code>System.getProperty("user.name")</code>
- * or the Server's pre-authentication username.</b>
+ * Localhost is supported but must be enabled through the filter configuration. Allowing requests to
+ * come from the DNS http://localhost will obviate the requirement that a service must have an SPN.
+ * <b>Note that Kerberos authentication (if localhost) does not occur but instead simply returns
+ * the
+ * <code>System.getProperty("user.name")</code> or the Server's pre-authentication username.</b>
  * </p>
  * <p/>
  * <p>
- * NTLM tokens are NOT supported. However it is still possible to avoid an error
- * being returned by downgrading the authentication from Negotiate NTLM to Basic Auth.
+ * NTLM tokens are NOT supported. However it is still possible to avoid an error being returned by
+ * downgrading the authentication from Negotiate NTLM to Basic Auth.
  * </p>
  * <p/>
  * <p>
- * See the <a href="http://spnego.sourceforge.net/reference_docs.html"
- * target="_blank">reference docs</a> on how to configure the web.xml to prompt
- * when if a request is being made using NTLM.
+ * See the <a href="http://spnego.sourceforge.net/reference_docs.html" target="_blank">reference
+ * docs</a> on how to configure the web.xml to prompt when if a request is being made using NTLM.
  * </p>
  * <p/>
  * <p>
- * Finally, to see a working example and instructions on how to use a keytab, take
- * a look at the <a href="http://spnego.sourceforge.net/server_keytab.html"
- * target="_blank">creating a server keytab</a> example.
+ * Finally, to see a working example and instructions on how to use a keytab, take a look at the <a
+ * href="http://spnego.sourceforge.net/server_keytab.html" target="_blank">creating a server
+ * keytab</a> example.
  * </p>
+ *
  * @author Darwin V. Felix
  */
 public final class SpnegoAuthenticator {
@@ -154,12 +154,15 @@ public final class SpnegoAuthenticator {
 
   /**
    * Create an authenticator for SPNEGO and/or BASIC authentication.
+   *
    * @param config servlet filter initialization parameters
-   * @throws javax.security.auth.login.LoginException
-   * @throws org.ietf.jgss.GSSException
-   * @throws java.security.PrivilegedActionException
+   * @throws LoginException if a caller-specified name does not appear in the Configuration and
+   * there is no Configuration entry for "other", or if the auth.login.defaultCallbackHandler
+   * security property was set, but the implementation class could not be loaded.
+   * @throws GSSException if a GSS-API error occurs.
+   * @throws PrivilegedActionException if the execution of some privileged actions aren't allowed
    */
-  public SpnegoAuthenticator(final SpnegoFilterConfig config)
+  SpnegoAuthenticator(final SpnegoFilterConfig config)
       throws LoginException, GSSException, PrivilegedActionException {
 
     LOGGER.fine("config=" + config);
@@ -189,36 +192,36 @@ public final class SpnegoAuthenticator {
   }
 
   /**
-   * Create an authenticator for SPNEGO and/or BASIC authentication. For third-party
-   * code/frameworks that want to authenticate via their own filter/valve/code/etc.
+   * Create an authenticator for SPNEGO and/or BASIC authentication. For third-party code/frameworks
+   * that want to authenticate via their own filter/valve/code/etc.
    * <p/>
    * <p>
-   * The ExampleSpnegoAuthenticatorValve.java demonstrates a working example of
-   * how to use this constructor.
+   * The ExampleSpnegoAuthenticatorValve.java demonstrates a working example of how to use this
+   * constructor.
    * </p>
    * <p/>
    * <p>
    * Example of some Map keys and values: <br />
    * <code>
    * <p/>
-   * Map map = new HashMap();
-   * map.put("spnego.krb5.conf", "krb5.conf");
-   * map.put("spnego.allow.basic", "true");
-   * map.put("spnego.preauth.username", "dfelix");
-   * map.put("spnego.preauth.password", "myp@s5");
-   * ...
+   * Map map = new HashMap(); map.put("spnego.krb5.conf", "krb5.conf");
+   * map.put("spnego.allow.basic", "true"); map.put("spnego.preauth.username", "dfelix");
+   * map.put("spnego.preauth.password", "myp@s5"); ...
    * <p/>
-   * SpnegoAuthenticator authenticator = new SpnegoAuthenticator(map);
-   * ...
+   * SpnegoAuthenticator authenticator = new SpnegoAuthenticator(map); ...
    * </code>
    * </p>
-   * @param config
-   * @throws javax.security.auth.login.LoginException
-   * @throws org.ietf.jgss.GSSException
-   * @throws java.security.PrivilegedActionException
-   * @throws java.io.FileNotFoundException
-   * @throws java.net.URISyntaxException
+   *
+   * @param config a map of key-values configuration properties.
+   * @throws LoginException if a caller-specified name does not appear in the Configuration and
+   * there is no Configuration entry for "other", or if the auth.login.defaultCallbackHandler
+   * security property was set, but the implementation class could not be loaded.
+   * @throws GSSException if a GSS-API error occurs.
+   * @throws PrivilegedActionException if the execution of some privileged actions aren't allowed
+   * @throws FileNotFoundException if there is no login configuration file found
+   * @throws URISyntaxException if the syntax of the path of the login configuration file is wrong
    */
+  @SuppressWarnings("unused")
   public SpnegoAuthenticator(final Map<String, String> config)
       throws LoginException, GSSException, PrivilegedActionException, FileNotFoundException,
       URISyntaxException {
@@ -240,9 +243,8 @@ public final class SpnegoAuthenticator {
         return map.get(param);
       }
 
-      @SuppressWarnings("rawtypes")
       @Override
-      public Enumeration getInitParameterNames() {
+      public Enumeration<String> getInitParameterNames() {
         throw new UnsupportedOperationException();
       }
 
@@ -261,14 +263,16 @@ public final class SpnegoAuthenticator {
    * </p>
    * <p/>
    * <p>
-   * Method will throw UnsupportedOperationException if client authz
-   * request is NOT "Negotiate" or "Basic".
+   * Method will throw UnsupportedOperationException if the client authentication request is NOT
+   * "Negotiate" nor "Basic".
    * </p>
+   *
    * @param req servlet request
    * @param resp servlet response
    * @return null if auth not complete else SpnegoPrincipal of client
-   * @throws org.ietf.jgss.GSSException
-   * @throws java.io.IOException
+   * @throws GSSException if a GSS-API error occurs.
+   * @throws IOException if an error occurs with the remote server during the authentication
+   * process.
    */
   public SpnegoPrincipal authenticate(final HttpServletRequest req,
       final SpnegoHttpServletResponse resp) throws GSSException, IOException {
@@ -319,12 +323,12 @@ public final class SpnegoAuthenticator {
   }
 
   /**
-   * Logout. Since server uses LoginContext to login/pre-authenticate, we must
-   * also logout when we are done using this object.
+   * Logout. Since server uses LoginContext to login/pre-authenticate, we must also logout when we
+   * are done using this object.
    * <p/>
    * <p>
-   * Generally, instantiators of this class should be the only to call
-   * dispose() as it indicates that this class will no longer be used.
+   * Generally, codes using instances of this class have to call dispose() as it indicates
+   * that those instances will no longer be used.
    * </p>
    */
   public void dispose() {
@@ -348,9 +352,10 @@ public final class SpnegoAuthenticator {
    * Performs authentication using the BASIC Auth mechanism.
    * <p/>
    * <p>
-   * Returns null if authentication failed or if the provided
-   * the auth scheme did not contain BASIC Auth data/token.
+   * Returns null if authentication failed or if the provided the auth scheme did not contain BASIC
+   * Auth data/token.
    * </p>
+   *
    * @return SpnegoPrincipal for the given auth scheme.
    */
   private SpnegoPrincipal doBasicAuth(final SpnegoAuthScheme scheme,
@@ -381,7 +386,7 @@ public final class SpnegoAuthenticator {
 
     try {
       // assert
-      if (null == username || username.isEmpty()) {
+      if (username.isEmpty()) {
         throw new LoginException("Username is required.");
       }
 
@@ -426,9 +431,10 @@ public final class SpnegoAuthenticator {
    * Performs authentication using the SPNEGO mechanism.
    * <p/>
    * <p>
-   * Returns null if authentication failed or if the provided
-   * the auth scheme did not contain the SPNEGO/GSS token.
+   * Returns null if authentication failed or if the provided the auth scheme did not contain the
+   * SPNEGO/GSS token.
    * </p>
+   *
    * @return SpnegoPrincipal for the given auth scheme.
    */
   private SpnegoPrincipal doSpnegoAuth(final SpnegoAuthScheme scheme,
@@ -446,7 +452,7 @@ public final class SpnegoAuthenticator {
     GSSCredential delegCred = null;
 
     try {
-      byte[] token = null;
+      byte[] token;
 
       SpnegoAuthenticator.LOCK.lock();
       try {
@@ -462,7 +468,7 @@ public final class SpnegoAuthenticator {
       }
 
       resp.setHeader(Constants.AUTHN_HEADER,
-          Constants.NEGOTIATE_HEADER + ' ' + Base64.encode(token));
+          Constants.NEGOTIATE_HEADER + ' ' + Base64.getEncoder().encodeToString(token));
 
       if (!context.isEstablished()) {
         LOGGER.fine("context not established");
@@ -492,6 +498,7 @@ public final class SpnegoAuthenticator {
 
   /**
    * Returns true if HTTP request is from the same host (localhost).
+   *
    * @param req servlet request
    * @return true if HTTP request is from the same host (localhost)
    */
@@ -502,6 +509,7 @@ public final class SpnegoAuthenticator {
 
   /**
    * Returns true if typed runtime exceptions have to be thrown.
+   *
    * @return true if typed runtime exceptions have to be thrown
    */
   public boolean isTypedRuntimeExceptionThrown() {
