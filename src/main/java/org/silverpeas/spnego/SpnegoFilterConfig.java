@@ -1,17 +1,17 @@
-/**
- * Copyright (C) 2014 Silverpeas
+/*
+ * Copyright (C) 2014-2023 Silverpeas
  * Copyright (C) 2009 "Darwin V. Felix" <darwinfelix@users.sourceforge.net>
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
@@ -23,12 +23,15 @@ import org.silverpeas.spnego.SpnegoHttpFilter.Constants;
 
 import javax.security.auth.login.AppConfigurationEntry;
 import javax.security.auth.login.Configuration;
-import javax.servlet.FilterConfig;
+
+import jakarta.servlet.FilterConfig;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -42,9 +45,9 @@ import java.util.logging.Logger;
  * and if all of the LoginModule options have been set.</p>
  * <p/>
  * <p>
- * To see a working example and instructions on how to use a keytab, take
- * a look at the <a href="http://spnego.sourceforge.net/server_keytab.html"
- * target="_blank">creating a server keytab</a> example.
+ * To see a working example and instructions on how to use a keytab, take a look at the <a
+ * href="http://spnego.sourceforge.net/server_keytab.html" target="_blank">creating a server
+ * keytab</a> example.
  * </p>
  * <p/>
  * <p>The class should be used as a Singleton:<br />
@@ -54,9 +57,10 @@ import java.util.logging.Logger;
  * </p>
  * <p/>
  * <p>See an example web.xml configuration in the
- * <a href="http://spnego.sourceforge.net/spnego_tomcat.html"
- * target="_blank">installing on tomcat</a> documentation.
+ * <a href="http://spnego.sourceforge.net/spnego_tomcat.html" target="_blank">installing on
+ * tomcat</a> documentation.
  * </p>
+ *
  * @author Darwin V. Felix
  */
 final class SpnegoFilterConfig { // NOPMD
@@ -66,21 +70,17 @@ final class SpnegoFilterConfig { // NOPMD
   private static final String MISSING_PROPERTY =
       "Servlet Filter init param(s) in web.xml missing: ";
 
-  private static transient SpnegoFilterConfig instance = null;
+  private static SpnegoFilterConfig instance = null;
 
   /**
-   * true if typed runtime exception have to be thrown and handled behind by the server
-   * application.
-   * For example :
-   * <error-page>
+   * true if typed runtime exception have to be thrown and handled behind by the server application.
+   * For example : <error-page>
    * <exception-type>org.silverpeas.spnego.SpnegoGSSException</exception-type>
    * <location>/technicalError.jsp</location>
-   * </error-page>
-   * <error-page>
+   * </error-page> <error-page>
    * <exception-type>org.silverpeas.spnego.SpnegoUnsupportedOperationException</exception-type>
    * <location>/unsupportedOperationError.jsp</location>
-   * </error-page>
-   * <error-page>
+   * </error-page> <error-page>
    * <exception-type>org.silverpeas.spnego.SpnegoUnauthenticatedException</exception-type>
    * <location>/unauthenticatedError.jsp</location>
    * </error-page>
@@ -231,15 +231,14 @@ final class SpnegoFilterConfig { // NOPMD
         if (!option.getKey().startsWith("jboss")) {
           throw new UnsupportedOperationException(
               "Login Module for client must not " + "specify any options: " + opt.size() +
-                  "; moduleName=" + moduleName + "; options=" + opt.toString());
+                  "; moduleName=" + moduleName + "; options=" + opt);
         }
       }
     }
   }
 
   /**
-   * Set the canUseKeyTab flag by determining if all LoginModule options
-   * have been set.
+   * Set the canUseKeyTab flag by determining if all LoginModule options have been set.
    * <p/>
    * <pre>
    * my-spnego-login-module {
@@ -251,7 +250,8 @@ final class SpnegoFilterConfig { // NOPMD
    *      principal="my_preauth_account";
    * };
    * </pre>
-   * @param moduleName
+   *
+   * @param moduleName the name of the login module
    */
   private void doServerModule(final String moduleName) {
 
@@ -280,16 +280,14 @@ final class SpnegoFilterConfig { // NOPMD
           "Login Module for server does " + "not have the storeKey option defined in login file.");
     }
 
-    if (opt.containsKey("useKeyTab") && opt.containsKey("principal") && opt.containsKey("keyTab")) {
-      this.canUseKeyTab = true;
-    } else {
-      this.canUseKeyTab = false;
-    }
+    this.canUseKeyTab =
+        opt.containsKey("useKeyTab") && opt.containsKey("principal") && opt.containsKey("keyTab");
   }
 
   /**
-   * Returns true if a client sends an NTLM token and the
-   * filter should ask client for a Basic Auth token instead.
+   * Returns true if a client sends an NTLM token and the filter should ask client for a Basic Auth
+   * token instead.
+   *
    * @return true if client should be prompted for Basic Auth
    */
   boolean downgradeNtlm() {
@@ -297,8 +295,8 @@ final class SpnegoFilterConfig { // NOPMD
   }
 
   /**
-   * Return the value defined in the servlet's init params
-   * in the web.xml file.
+   * Return the value defined in the servlet's init params in the web.xml file.
+   *
    * @return the name of the login module for the client
    */
   String getClientLoginModule() {
@@ -307,6 +305,7 @@ final class SpnegoFilterConfig { // NOPMD
 
   /**
    * Return the password to the pre-authentication domain account.
+   *
    * @return password of pre-auth domain account
    */
   String getPreauthPassword() {
@@ -315,6 +314,7 @@ final class SpnegoFilterConfig { // NOPMD
 
   /**
    * Return the name of the pre-authentication domain account.
+   *
    * @return name of pre-auth domain account
    */
   String getPreauthUsername() {
@@ -322,8 +322,8 @@ final class SpnegoFilterConfig { // NOPMD
   }
 
   /**
-   * Return the value defined in the servlet's init params
-   * in the web.xml file.
+   * Return the value defined in the servlet's init params in the web.xml file.
+   *
    * @return the name of the login module for the server
    */
   String getServerLoginModule() {
@@ -332,6 +332,7 @@ final class SpnegoFilterConfig { // NOPMD
 
   /**
    * Returns the instance of the servlet's config parameters.
+   *
    * @param config FilterConfi from servlet's init method
    * @return the instance of that represent the init params
    * @throws java.io.FileNotFoundException if login conf file not found
@@ -352,6 +353,7 @@ final class SpnegoFilterConfig { // NOPMD
 
   /**
    * Returns true if typed runtime exceptions have to be thrown.
+   *
    * @return true if typed runtime exceptions have to be thrown
    */
   boolean isTypedRuntimeExceptionThrown() {
@@ -360,6 +362,7 @@ final class SpnegoFilterConfig { // NOPMD
 
   /**
    * Returns true if Basic Authentication is allowed.
+   *
    * @return true if Basic Auth is allowed
    */
   boolean isBasicAllowed() {
@@ -368,6 +371,7 @@ final class SpnegoFilterConfig { // NOPMD
 
   /**
    * Returns true if the server should support credential delegation requests.
+   *
    * @return true if server supports credential delegation
    */
   boolean isDelegationAllowed() {
@@ -376,6 +380,7 @@ final class SpnegoFilterConfig { // NOPMD
 
   /**
    * Returns true if requests from localhost are allowed.
+   *
    * @return true if requests from localhost are allowed
    */
   boolean isLocalhostAllowed() {
@@ -384,6 +389,7 @@ final class SpnegoFilterConfig { // NOPMD
 
   /**
    * Returns true if SSL/TLS is required.
+   *
    * @return true if SSL/TLS is required
    */
   boolean isUnsecureAllowed() {
@@ -409,23 +415,7 @@ final class SpnegoFilterConfig { // NOPMD
   private boolean moduleExists(final String side, final String moduleName) {
 
     // confirm that runtime loaded the login file
-    final Configuration config = Configuration.getConfiguration();
-
-    // we only expect one entry
-    final AppConfigurationEntry[] entry = config.getAppConfigurationEntry(moduleName);
-
-    // confirm that the module name exists in the file
-    if (null == entry) {
-      throw new IllegalArgumentException(
-          "The " + side + " module name " + "was not found in the login file: " + moduleName);
-    }
-
-    // confirm that the login module class was defined
-    if (0 == entry.length) {
-      throw new IllegalArgumentException(
-          "The " + side + " module name " + "exists but login module class not defined: " +
-              moduleName);
-    }
+    final AppConfigurationEntry[] entry = getAppConfigurationEntries(side, moduleName);
 
     // confirm that only one login module class specified
     if (entry.length > 1) {
@@ -449,9 +439,31 @@ final class SpnegoFilterConfig { // NOPMD
     return true;
   }
 
+  private static AppConfigurationEntry[] getAppConfigurationEntries(String side,
+      String moduleName) {
+    final Configuration config = Configuration.getConfiguration();
+
+    // we only expect one entry
+    final AppConfigurationEntry[] entry = config.getAppConfigurationEntry(moduleName);
+
+    // confirm that the module name exists in the file
+    if (null == entry) {
+      throw new IllegalArgumentException(
+          "The " + side + " module name " + "was not found in the login file: " + moduleName);
+    }
+
+    // confirm that the login module class was defined
+    if (0 == entry.length) {
+      throw new IllegalArgumentException(
+          "The " + side + " module name " + "exists but login module class not defined: " +
+              moduleName);
+    }
+    return entry;
+  }
+
   /**
-   * Specify if Basic authentication is allowed and if un-secure/non-ssl
-   * Basic should be allowed.
+   * Specify if Basic authentication is allowed and if un-secure/non-ssl Basic should be allowed.
+   *
    * @param basic true if basic is allowed
    * @param unsecure true if un-secure basic is allowed
    */
@@ -472,6 +484,7 @@ final class SpnegoFilterConfig { // NOPMD
 
   /**
    * Specify the logging level.
+   *
    * @param level logging level
    */
   private void setLogLevel(final String level) {
@@ -503,9 +516,9 @@ final class SpnegoFilterConfig { // NOPMD
   }
 
   /**
-   * If request contains NTLM token, specify if a 401 should
-   * be sent back to client with Basic Auth as the only
-   * available authentication scheme.
+   * If request contains NTLM token, specify if a 401 should be sent back to client with Basic Auth
+   * as the only available authentication scheme.
+   *
    * @param ntlm true/false
    */
   private void setNtlmSupport(final String ntlm) {
@@ -526,24 +539,15 @@ final class SpnegoFilterConfig { // NOPMD
 
   /**
    * Set the username and password if specified in web.xml's init params.
+   *
    * @param usr domain account
    * @param psswrd the password to the domain account
    * @throws IllegalArgumentException if user/pass AND keyTab set
    */
   private void setUsernamePassword(final String usr, final String psswrd) {
     boolean mustUseKtab = false;
-
-    if (null == usr) {
-      this.username = "";
-    } else {
-      this.username = usr;
-    }
-
-    if (null == psswrd) {
-      this.password = "";
-    } else {
-      this.password = psswrd;
-    }
+    this.username = Objects.requireNonNullElse(usr, "");
+    this.password = Objects.requireNonNullElse(psswrd, "");
 
     if (this.username.isEmpty() || this.password.isEmpty()) {
       mustUseKtab = true;
@@ -556,6 +560,7 @@ final class SpnegoFilterConfig { // NOPMD
 
   /**
    * Returns true if LoginContext should use keyTab.
+   *
    * @return true if LoginContext should use keyTab.
    */
   boolean useKeyTab() {
@@ -565,12 +570,8 @@ final class SpnegoFilterConfig { // NOPMD
 
   @Override
   public String toString() {
-    final StringBuilder buff = new StringBuilder();
-
-    buff.append("allowBasic=" + this.allowBasic + "; allowUnsecure=" + this.allowUnsecure +
+    return "allowBasic=" + this.allowBasic + "; allowUnsecure=" + this.allowUnsecure +
         "; canUseKeyTab=" + this.canUseKeyTab + "; clientLoginModule=" + this.clientLoginModule +
-        "; serverLoginModule=" + this.serverLoginModule);
-
-    return buff.toString();
+        "; serverLoginModule=" + this.serverLoginModule;
   }
 }

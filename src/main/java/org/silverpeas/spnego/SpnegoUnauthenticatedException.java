@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2014 Silverpeas
+/*
+ * Copyright (C) 2014-2023 Silverpeas
  * Copyright (C) 2009 "Darwin V. Felix" <darwinfelix@users.sourceforge.net>
  *
  * This library is free software; you can redistribute it and/or

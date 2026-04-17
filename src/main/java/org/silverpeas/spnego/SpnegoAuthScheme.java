@@ -1,4 +1,5 @@
-/** 
+/*
+ * Copyright (C) 2014-2023 Silverpeas
  * Copyright (C) 2009 "Darwin V. Felix" <darwinfelix@users.sourceforge.net>
  * 
  * This library is free software; you can redistribute it and/or
@@ -20,6 +21,8 @@ package org.silverpeas.spnego;
 
 import org.silverpeas.spnego.SpnegoHttpFilter.Constants;
 
+import java.util.Base64;
+
 /**
  * Example schemes are "Negotiate" and "Basic".
  * <p/>
@@ -33,7 +36,7 @@ final class SpnegoAuthScheme {
   /**
    * Zero length byte array.
    */
-  private static final transient byte[] EMPTY_BYTE_ARRAY = new byte[0];
+  private static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
 
   /**
    * HTTP (Request) "Authorization" Header scheme.
@@ -61,8 +64,9 @@ final class SpnegoAuthScheme {
   private final transient boolean ntlm;
 
   /**
-   * @param authScheme
-   * @param authToken
+   * Constructs a Spnego authentication scheme.
+   * @param authScheme the authentication scheme used in the authentication parameter.
+   * @param authToken the authentication token carried with the authentication parameter.
    */
   public SpnegoAuthScheme(final String authScheme, final String authToken) {
     this.scheme = authScheme;
@@ -115,6 +119,6 @@ final class SpnegoAuthScheme {
    * @return copy of token
    */
   public byte[] getToken() {
-    return (null == this.token) ? EMPTY_BYTE_ARRAY : Base64.decode(this.token);
+    return (null == this.token) ? EMPTY_BYTE_ARRAY : Base64.getDecoder().decode(this.token);
   }
 }

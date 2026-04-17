@@ -1,4 +1,5 @@
-/** 
+/*
+ * Copyright (C) 2014-2023 Silverpeas
  * Copyright (C) 2009 "Darwin V. Felix" <darwinfelix@users.sourceforge.net>
  * 
  * This library is free software; you can redistribute it and/or
@@ -21,8 +22,8 @@ package org.silverpeas.spnego;
 import org.ietf.jgss.GSSCredential;
 import org.silverpeas.spnego.SpnegoHttpFilter.Constants;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
 import java.security.Principal;
 
 /**
@@ -45,9 +46,9 @@ final class SpnegoHttpServletRequest extends HttpServletRequestWrapper
   private final transient SpnegoPrincipal principal;
 
   /**
-   * Creates Servlet Request specifying KerberosPrincipal of user.
-   * @param request
-   * @param spnegoPrincipal
+   * Creates a Servlet Request specifying KerberosPrincipal of user.
+   * @param request the incoming HTTP request
+   * @param spnegoPrincipal the principal behind the request.
    */
   SpnegoHttpServletRequest(final HttpServletRequest request,
       final SpnegoPrincipal spnegoPrincipal) {
@@ -59,7 +60,7 @@ final class SpnegoHttpServletRequest extends HttpServletRequestWrapper
 
   /**
    * Returns "Negotiate" or "Basic" else default auth type.
-   * @see javax.servlet.http.HttpServletRequest#getAuthType()
+   * @see jakarta.servlet.http.HttpServletRequest#getAuthType()
    */
   @Override
   public String getAuthType() {
@@ -90,7 +91,7 @@ final class SpnegoHttpServletRequest extends HttpServletRequestWrapper
 
   /**
    * Returns authenticated username (without domain/realm) else default username.
-   * @see javax.servlet.http.HttpServletRequest#getRemoteUser()
+   * @see jakarta.servlet.http.HttpServletRequest#getRemoteUser()
    */
   @Override
   public String getRemoteUser() {
@@ -110,7 +111,7 @@ final class SpnegoHttpServletRequest extends HttpServletRequestWrapper
 
   /**
    * Returns KerberosPrincipal of user.
-   * @see javax.servlet.http.HttpServletRequest#getUserPrincipal()
+   * @see jakarta.servlet.http.HttpServletRequest#getUserPrincipal()
    */
   @Override
   public Principal getUserPrincipal() {
